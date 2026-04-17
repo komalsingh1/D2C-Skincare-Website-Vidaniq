@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SkinQuizModal } from "@/components/quiz/SkinQuizModal";
 import { CartSidebar } from "@/components/cart/CartSidebar";
+import { FirstVisitProvider } from "@/components/providers/FirstVisitProvider";
 
 export const metadata: Metadata = {
   title: "Vidaniq — Organic Skincare, Rooted in Nature",
@@ -49,6 +50,7 @@ export default function RootLayout({
         <Footer />
         <SkinQuizModal />
         <CartSidebar />
+        <FirstVisitProvider />
       </body>
     </html>
   );

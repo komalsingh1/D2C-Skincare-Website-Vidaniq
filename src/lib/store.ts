@@ -1,7 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CartItem, Product, SkinProfile } from "@/lib/types";
+import { CartItem, Order, Product, SkinProfile, UserProfile } from "@/lib/types";
 
 interface CartStore {
   items: CartItem[];
@@ -124,5 +124,62 @@ export const useSkinProfileStore = create<SkinProfileStore>()(
       setStep: (step) => set({ step }),
     }),
     { name: "vidaniq-skin-profile" }
+  )
+);
+
+// ─── Order Store ────────────────────────────────────────────────────────────
+
+interface OrderStore {
+  orders: Order[];
+  addOrder: (order: Order) => void;
+  getOrder: (id: string) => Order | undefined;
+  updateOrderStatus: (id: string, status: Order["status"]) => void;
+}
+
+export const useOrderStore = create<OrderStore>()(
+  persist(
+    (set, get) => ({
+      orders: [],
+
+      addOrder: (order) =>
+        set((state) => ({ orders: [order, ...state.orders] })),
+
+      getOrder: (id) => get().orders.find((o) => o.id === id),
+
+      updateOrderStatus: (id, status) =>
+        set((state) => ({
+          orders: state.orders.map((o) =>
+            o.id === id ? { ...o, status } : o
+          ),
+        })),
+    }),
+    { name: "vidaniq-orders" }
+  )
+);
+
+// ─── User Profile Store ──────────────────────────────────────────────────────
+
+interface UserStore {
+  profile: UserProfile | null;
+  setProfile: (profile: UserProfile) => void;
+  updateProfile: (partial: Partial<UserProfile>) => void;
+  clearProfile: () => void;
+}
+
+export const useUserStore = create<UserStore>()(
+  persist(
+    (set) => ({
+      profile: null,
+
+      setProfile: (profile) => set({ profile }),
+
+      updateProfile: (partial) =>
+        set((state) => ({
+          profile: state.profile ? { ...state.profile, ...partial } : null,
+        })),
+
+      clearProfile: () => set({ profile: null }),
+    }),
+    { name: "vidaniq-user" }
   )
 );

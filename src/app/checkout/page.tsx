@@ -15,7 +15,8 @@ import {
   MapPin,
   Package,
 } from "lucide-react";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useOrderStore, useUserStore } from "@/lib/store";
+import { Order } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +68,9 @@ const STEP_LABELS = ["Address", "Delivery", "Payment", "Review"];
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, getTotal, discount, coupon, clearCart } = useCartStore();
+  const { items, getTotal, getSubtotal, discount, coupon, clearCart } = useCartStore();
+  const { addOrder } = useOrderStore();
+  const { setProfile } = useUserStore();
   const [currentStep, setCurrentStep] = useState<Step>("address");
   const [address, setAddress] = useState<Address>({
     name: "",
@@ -83,14 +86,79 @@ export default function CheckoutPage() {
   const [payment, setPayment] = useState("upi");
   const [upiId, setUpiId] = useState("");
   const [ordered, setOrdered] = useState(false);
+  const [orderId, setOrderId] = useState("");
 
-  const subtotal = getTotal();
+  const rawSubtotal = getSubtotal();
+  const subtotal = getTotal(); // after coupon
   const deliveryCharge =
     delivery === "express" ? 99 : subtotal >= 799 ? 0 : 99;
   const total = subtotal + deliveryCharge;
   const stepIndex = STEPS.indexOf(currentStep);
 
   const handlePlaceOrder = () => {
+    const now = new Date();
+    const id = `VD${Math.floor(Math.random() * 900000 + 100000)}`;
+    const estimatedDays = delivery === "express" ? 2 : 5;
+    const estimatedDate = new Date(now.getTime() + estimatedDays * 24 * 60 * 60 * 1000);
+
+    const order: Order = {
+      id,
+      createdAt: now.toISOString(),
+      status: "processing",
+      items: items.map(({ product, quantity }) => ({
+        productId: product.id,
+        productName: product.name,
+        productSlug: product.slug,
+        productImage: product.images[0],
+        price: product.price,
+        quantity,
+      })),
+      address: {
+        name: address.name,
+        phone: address.phone,
+        email: address.email,
+        address: address.address,
+        landmark: address.landmark,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+      },
+      deliveryType: delivery as "standard" | "express",
+      paymentMethod: payment === "upi" ? `UPI${upiId ? ` (${upiId})` : ""}` : PAYMENT_METHODS.find(p => p.id === payment)?.label || payment,
+      subtotal: rawSubtotal,
+      deliveryCharge,
+      discount: rawSubtotal - subtotal,
+      coupon,
+      total,
+      estimatedDelivery: estimatedDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+      trackingUpdates: [
+        {
+          status: "processing",
+          timestamp: now.toISOString(),
+          message: "Order received and is being processed",
+          location: "Vidaniq Warehouse",
+        },
+      ],
+    };
+
+    addOrder(order);
+
+    // Save user profile for account page
+    setProfile({
+      name: address.name,
+      email: address.email,
+      phone: address.phone,
+      addresses: [order.address],
+    });
+
+    // Attempt backend API call (works in server mode; fails silently on static export)
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order),
+    }).catch(() => {/* static export — silently ignore */});
+
+    setOrderId(id);
     setOrdered(true);
     clearCart();
   };
@@ -109,12 +177,12 @@ export default function CheckoutPage() {
             Thank you, {address.name || "valued customer"}! Your order has been confirmed.
           </p>
           <p className="text-sage-600 font-semibold mt-1">
-            Order #VD{Math.floor(Math.random() * 90000 + 10000)}
+            Order #{orderId}
           </p>
         </div>
         <div className="bg-sage-50 rounded-2xl p-5 max-w-sm w-full text-left space-y-2">
           <p className="text-sm text-gray-600">
-            📧 Order confirmation sent to{" "}
+            📧 Confirmation sent to{" "}
             <span className="font-semibold">{address.email || "your email"}</span>
           </p>
           <p className="text-sm text-gray-600">
@@ -124,12 +192,15 @@ export default function CheckoutPage() {
             </span>
           </p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/products" className="btn-secondary">
-            Continue Shopping
+        <div className="flex gap-3 flex-wrap justify-center">
+          <Link href={`/orders?id=${orderId}`} className="btn-primary">
+            Track Order
           </Link>
-          <Link href="/" className="btn-primary">
-            Go to Home
+          <Link href="/orders" className="btn-secondary">
+            All Orders
+          </Link>
+          <Link href="/products" className="btn-ghost">
+            Continue Shopping
           </Link>
         </div>
       </div>

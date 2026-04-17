@@ -96,3 +96,62 @@ export interface CartItem {
   product: Product;
   quantity: number;
 }
+
+export type OrderStatus =
+  | "processing"
+  | "confirmed"
+  | "shipped"
+  | "out-for-delivery"
+  | "delivered"
+  | "cancelled";
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  productSlug: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+}
+
+export interface OrderAddress {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  landmark?: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
+export interface TrackingUpdate {
+  status: OrderStatus;
+  timestamp: string;
+  message: string;
+  location?: string;
+}
+
+export interface Order {
+  id: string;
+  createdAt: string;
+  status: OrderStatus;
+  items: OrderItem[];
+  address: OrderAddress;
+  deliveryType: "standard" | "express";
+  paymentMethod: string;
+  subtotal: number;
+  deliveryCharge: number;
+  discount: number;
+  coupon: string | null;
+  total: number;
+  estimatedDelivery: string;
+  trackingUpdates: TrackingUpdate[];
+}
+
+export interface UserProfile {
+  name: string;
+  email: string;
+  phone: string;
+  addresses: OrderAddress[];
+}

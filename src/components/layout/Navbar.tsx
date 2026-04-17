@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingBag, Search, User, Menu, X, Leaf, ChevronDown } from "lucide-react";
+import { ShoppingBag, Search, User, Menu, X, Leaf, ChevronDown, Package } from "lucide-react";
 import { useCartStore } from "@/lib/store";
 import { useSkinProfileStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -209,6 +209,24 @@ export function Navbar() {
                   )}
                 </div>
               ))}
+
+              {/* Account links */}
+              <div className="border-t border-cream-100 pt-3 mt-3 space-y-1">
+                <Link
+                  href="/account"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-800 hover:text-sage-700 hover:bg-sage-50 rounded-xl transition-colors"
+                >
+                  <User className="w-4 h-4" /> My Account
+                </Link>
+                <Link
+                  href="/orders"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-800 hover:text-sage-700 hover:bg-sage-50 rounded-xl transition-colors"
+                >
+                  <Package className="w-4 h-4" /> My Orders
+                </Link>
+              </div>
             </div>
           </div>
         </div>

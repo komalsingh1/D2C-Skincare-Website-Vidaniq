@@ -25,7 +25,10 @@
       "Bash(export NODE=\"/tmp/bin/node\")",
       "Bash(node /tmp/package/bin/npm-cli.js install)",
       "Bash(chmod +x /tmp/vidaniq-dev.sh)",
-      "Bash(ln -sf /tmp/package/bin/npx-cli.js /tmp/bin/npx)"
+      "Bash(ln -sf /tmp/package/bin/npx-cli.js /tmp/bin/npx)",
+      "Bash(/Applications/Cursor.app/Contents/Resources/app/resources/helpers/node ./node_modules/.bin/next build)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
     ]
   }
 }
