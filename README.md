@@ -10,7 +10,7 @@
 **A full-stack, production-ready D2C skincare e-commerce platform built with Next.js 14.**  
 Science-backed, Ayurvedic-inspired skincare. Personalized. Transparent. Clean.
 
-[Live Demo](#) · [View Repo](https://github.com/komalsingh1/D2C-Skincare-Website-Vidaniq)
+[Live Demo](komalsingh1.github.io/Vidaniq/) · [View Repo](https://github.com/komalsingh1/D2C-Skincare-Website-Vidaniq)
 
 </div>
 
